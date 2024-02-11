@@ -1,6 +1,8 @@
 import 'package:billiard/src/components/BallTab.dart';
+import 'package:billiard/src/components/DialogBuilder.dart';
 import 'package:billiard/src/providers/TabProvider.dart';
 import 'package:billiard/src/ui/AddPlayersPage.dart';
+import 'package:billiard/src/ui/HomePage.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -271,8 +273,16 @@ class _GamePageState extends State<GamePage> {
                             0xFF1D251C,
                           ),
                         ),
-                        onPressed: () {
-                          Navigator.pop(context);
+                        onPressed: () async {
+                          bool? theVal = await dialogBuilder(context);
+                          if (theVal ?? false) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => MyHomePage(),
+                              ),
+                            );
+                          }
                         },
                         child: Text(
                           "FINISH GAME",
@@ -288,7 +298,69 @@ class _GamePageState extends State<GamePage> {
                         width: 10.0,
                       ),
                       InkWell(
-                        onTap: () {},
+                        onTap: () {
+                          showModalBottomSheet<void>(
+                            context: context,
+                            backgroundColor: Color(0xFF1D251C),
+                            builder: (BuildContext modalContext) {
+                              return Container(
+                                decoration: const BoxDecoration(
+                                  color: Color(0xFF1D251C),
+                                  borderRadius: BorderRadius.only(
+                                    topLeft: Radius.circular(50.0),
+                                    topRight: Radius.circular(50),
+                                  ),
+                                ),
+                                height: 400,
+                                width: MediaQuery.of(context).size.width,
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: <Widget>[
+                                    SizedBox(height: 20.0),
+                                    for (int i = 0;
+                                        i < tabProvider.bottomSheetData.length;
+                                        i++) ...[
+                                      ListTile(
+                                        onTap: () async {
+                                          Navigator.pop(modalContext);
+                                          bool? theVal =
+                                              await dialogBuilder(context);
+                                          if (theVal ?? false) {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    MyHomePage(),
+                                              ),
+                                            );
+                                          }
+                                        },
+                                        leading: Icon(
+                                          tabProvider.bottomSheetData[i].icon,
+                                          size: 40,
+                                          color: Color(
+                                            0xFFDADCD5,
+                                          ),
+                                        ),
+                                        title: Text(
+                                          tabProvider
+                                                  .bottomSheetData[i].title ??
+                                              "asdasd",
+                                          style: TextStyle(
+                                            fontSize: 18.0,
+                                            color: Color(
+                                              0xFFDADCD5,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                              );
+                            },
+                          );
+                        },
                         child: Icon(
                           Icons.chalet,
                           color: Color(

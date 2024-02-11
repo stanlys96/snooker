@@ -62,8 +62,12 @@ class _MyHomePageState extends State<MyHomePage> {
             child: FloatingActionButton.extended(
               backgroundColor: Color(0xFF1E241C),
               onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => AddPlayersPage()));
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => AddPlayersPage(),
+                  ),
+                );
               },
               label: Text(
                 "Add players",
