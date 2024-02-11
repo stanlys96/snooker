@@ -9,14 +9,26 @@ class AddPlayersPage extends StatefulWidget {
 }
 
 class _AddPlayersPageState extends State<AddPlayersPage> {
+  final TextEditingController playerController = TextEditingController();
+  final ScrollController listViewController = ScrollController();
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    playerController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<TabProvider>(builder: (context, tabProvider, _) {
       return Scaffold(
+        resizeToAvoidBottomInset: true,
         backgroundColor: const Color(0xFF1A1C19),
         appBar: AppBar(
           backgroundColor: Color(0xFF1A1C19),
           automaticallyImplyLeading: true,
+          surfaceTintColor: Color(0xFF8BD087),
           leading: InkWell(
             onTap: () {
               Navigator.pop(context);
@@ -32,11 +44,18 @@ class _AddPlayersPageState extends State<AddPlayersPage> {
           ),
         ),
         body: SingleChildScrollView(
+          reverse: true,
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
               Container(
+                padding: EdgeInsets.only(
+                  top: 15 + MediaQuery.of(context).viewInsets.bottom,
+                  bottom: 20,
+                ),
                 height: MediaQuery.of(context).size.height * 0.68,
                 child: ListView.separated(
+                  controller: listViewController,
                   separatorBuilder: (BuildContext context, int index) {
                     return SizedBox(
                       height: 20,
@@ -53,7 +72,7 @@ class _AddPlayersPageState extends State<AddPlayersPage> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Text(
-                          'Hey baby',
+                          tabProvider.playersList[index],
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 20.0,
@@ -62,7 +81,9 @@ class _AddPlayersPageState extends State<AddPlayersPage> {
                         SizedBox(width: 10),
                         InkWell(
                           onTap: () {
-                            print("OI");
+                            tabProvider.addHistoryPlayer(
+                                tabProvider.playersList[index]);
+                            tabProvider.deletePlayer(index);
                           },
                           child: Icon(
                             Icons.delete_sharp,
@@ -72,7 +93,7 @@ class _AddPlayersPageState extends State<AddPlayersPage> {
                       ],
                     ),
                   ),
-                  itemCount: 5,
+                  itemCount: tabProvider.playersList.length,
                 ),
               ),
               Column(
@@ -84,7 +105,7 @@ class _AddPlayersPageState extends State<AddPlayersPage> {
                     ),
                     // margin: EdgeInsets.only(bottom: 80),
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Container(
                           height: 40,
@@ -97,9 +118,11 @@ class _AddPlayersPageState extends State<AddPlayersPage> {
                             },
                             shrinkWrap: true,
                             scrollDirection: Axis.horizontal,
-                            itemBuilder: (context, index) => InkWell(
+                            itemBuilder: (context, historyIndex) => InkWell(
                               onTap: () {
-                                print("HEY");
+                                tabProvider.addPlayer(tabProvider
+                                    .historyPlayersList[historyIndex]);
+                                tabProvider.deleteHistoryPlayer(historyIndex);
                               },
                               child: Container(
                                 padding: EdgeInsets.symmetric(
@@ -115,7 +138,8 @@ class _AddPlayersPageState extends State<AddPlayersPage> {
                                 child: Row(
                                   children: [
                                     Text(
-                                      'Hey baby',
+                                      tabProvider
+                                          .historyPlayersList[historyIndex],
                                       style: TextStyle(
                                         color: Colors.white,
                                       ),
@@ -123,7 +147,8 @@ class _AddPlayersPageState extends State<AddPlayersPage> {
                                     SizedBox(width: 10),
                                     InkWell(
                                       onTap: () {
-                                        print("OI");
+                                        tabProvider
+                                            .deleteHistoryPlayer(historyIndex);
                                       },
                                       child: Icon(
                                         Icons.delete_sharp,
@@ -134,7 +159,7 @@ class _AddPlayersPageState extends State<AddPlayersPage> {
                                 ),
                               ),
                             ),
-                            itemCount: 5,
+                            itemCount: tabProvider.historyPlayersList.length,
                           ),
                         ),
                         Container(
@@ -154,6 +179,10 @@ class _AddPlayersPageState extends State<AddPlayersPage> {
                               Expanded(
                                 child: Container(
                                   child: TextField(
+                                    onChanged: (text) {
+                                      setState(() {});
+                                    },
+                                    controller: playerController,
                                     style: TextStyle(
                                       color: Colors.white,
                                     ),
@@ -173,6 +202,15 @@ class _AddPlayersPageState extends State<AddPlayersPage> {
                         Align(
                           alignment: Alignment.centerRight,
                           child: InkWell(
+                            onTap: () {
+                              if (playerController.text.trim() == "") return;
+                              if (playerController.text.isNotEmpty) {
+                                tabProvider.addPlayer(playerController.text);
+                                playerController.text = "";
+                                listViewController.jumpTo(listViewController
+                                    .position.maxScrollExtent);
+                              }
+                            },
                             child: Container(
                               margin: EdgeInsets.only(
                                 bottom: 20,
@@ -183,7 +221,10 @@ class _AddPlayersPageState extends State<AddPlayersPage> {
                               ),
                               decoration: BoxDecoration(
                                 color: Color(
-                                  0xFF1D251C,
+                                  tabProvider.playersList.isNotEmpty ||
+                                          playerController.text.isNotEmpty
+                                      ? 0xFF1D251C
+                                      : 0xFF333532,
                                 ),
                                 borderRadius: BorderRadius.all(
                                   Radius.circular(20),
@@ -194,16 +235,30 @@ class _AddPlayersPageState extends State<AddPlayersPage> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Icon(
-                                    Icons.play_arrow,
-                                    color: Color(0xFF8BD087),
+                                    playerController.text.isEmpty
+                                        ? Icons.play_arrow
+                                        : Icons.person_2,
+                                    color: Color(
+                                      tabProvider.playersList.isNotEmpty ||
+                                              playerController.text.isNotEmpty
+                                          ? 0xFF8BD087
+                                          : 0xFF707170,
+                                    ),
                                   ),
                                   SizedBox(
                                     width: 5,
                                   ),
                                   Text(
-                                    'Start Game',
+                                    playerController.text.isNotEmpty
+                                        ? 'Add player'
+                                        : 'Start Game',
                                     style: TextStyle(
-                                      color: Color(0xFF8BD087),
+                                      color: Color(
+                                        tabProvider.playersList.isNotEmpty ||
+                                                playerController.text.isNotEmpty
+                                            ? 0xFF8BD087
+                                            : 0xFF707170,
+                                      ),
                                       fontSize: 18.0,
                                     ),
                                   ),
