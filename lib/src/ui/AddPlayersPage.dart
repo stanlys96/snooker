@@ -1,5 +1,6 @@
 import 'package:billiard/src/components/BallTab.dart';
 import 'package:billiard/src/providers/TabProvider.dart';
+import 'package:billiard/src/ui/GamePage.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -50,10 +51,13 @@ class _AddPlayersPageState extends State<AddPlayersPage> {
             children: [
               Container(
                 padding: EdgeInsets.only(
-                  top: 15 + MediaQuery.of(context).viewInsets.bottom,
+                  top: 15,
+                ),
+                margin: EdgeInsets.only(
                   bottom: 20,
                 ),
-                height: MediaQuery.of(context).size.height * 0.68,
+                height: MediaQuery.of(context).size.height * 0.65 -
+                    MediaQuery.of(context).viewInsets.bottom,
                 child: ListView.separated(
                   controller: listViewController,
                   separatorBuilder: (BuildContext context, int index) {
@@ -142,6 +146,7 @@ class _AddPlayersPageState extends State<AddPlayersPage> {
                                           .historyPlayersList[historyIndex],
                                       style: TextStyle(
                                         color: Colors.white,
+                                        fontSize: 16.0,
                                       ),
                                     ),
                                     SizedBox(width: 10),
@@ -201,9 +206,31 @@ class _AddPlayersPageState extends State<AddPlayersPage> {
                         ),
                         Align(
                           alignment: Alignment.centerRight,
-                          child: InkWell(
-                            onTap: () {
-                              if (playerController.text.trim() == "") return;
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              padding: EdgeInsets.symmetric(
+                                vertical: 10.0,
+                                horizontal: 25.0,
+                              ),
+                              backgroundColor: //     color: Color(
+                                  Color(
+                                tabProvider.playersList.isNotEmpty ||
+                                        playerController.text.isNotEmpty
+                                    ? 0xFF1D251C
+                                    : 0xFF333532,
+                              ),
+                            ),
+                            onPressed: () {
+                              if (tabProvider.playersList.isNotEmpty &&
+                                  playerController.text.trim().isEmpty) {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => GamePage(),
+                                  ),
+                                );
+                              }
+                              if (playerController.text.trim().isEmpty) return;
                               if (playerController.text.isNotEmpty) {
                                 tabProvider.addPlayer(playerController.text);
                                 playerController.text = "";
@@ -211,60 +238,38 @@ class _AddPlayersPageState extends State<AddPlayersPage> {
                                     .position.maxScrollExtent);
                               }
                             },
-                            child: Container(
-                              margin: EdgeInsets.only(
-                                bottom: 20,
-                              ),
-                              padding: EdgeInsets.symmetric(
-                                vertical: 10,
-                                horizontal: 15,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Color(
-                                  tabProvider.playersList.isNotEmpty ||
-                                          playerController.text.isNotEmpty
-                                      ? 0xFF1D251C
-                                      : 0xFF333532,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  playerController.text.isEmpty
+                                      ? Icons.play_arrow
+                                      : Icons.person_2,
+                                  color: Color(
+                                    tabProvider.playersList.isNotEmpty ||
+                                            playerController.text.isNotEmpty
+                                        ? 0xFF8BD087
+                                        : 0xFF707170,
+                                  ),
                                 ),
-                                borderRadius: BorderRadius.all(
-                                  Radius.circular(20),
+                                SizedBox(
+                                  width: 5,
                                 ),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    playerController.text.isEmpty
-                                        ? Icons.play_arrow
-                                        : Icons.person_2,
+                                Text(
+                                  playerController.text.isNotEmpty
+                                      ? 'Add player'
+                                      : 'Start Game',
+                                  style: TextStyle(
                                     color: Color(
                                       tabProvider.playersList.isNotEmpty ||
                                               playerController.text.isNotEmpty
                                           ? 0xFF8BD087
                                           : 0xFF707170,
                                     ),
+                                    fontSize: 18.0,
                                   ),
-                                  SizedBox(
-                                    width: 5,
-                                  ),
-                                  Text(
-                                    playerController.text.isNotEmpty
-                                        ? 'Add player'
-                                        : 'Start Game',
-                                    style: TextStyle(
-                                      color: Color(
-                                        tabProvider.playersList.isNotEmpty ||
-                                                playerController.text.isNotEmpty
-                                            ? 0xFF8BD087
-                                            : 0xFF707170,
-                                      ),
-                                      fontSize: 18.0,
-                                    ),
-                                  ),
-                                  SizedBox(width: 10),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
                           ),
                         )

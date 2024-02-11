@@ -67,10 +67,14 @@ class _MyHomePageState extends State<MyHomePage> {
               },
               label: Text(
                 "Add players",
-                style: TextStyle(color: Color(0xFF88DD8a)),
+                style: TextStyle(
+                  color: Color(
+                    0xFF88DD8a,
+                  ),
+                ),
               ),
               icon: Icon(
-                Icons.home_filled,
+                Icons.person_2,
                 color: Color(0xFF88DD8A),
               ),
             ),
