@@ -1,4 +1,5 @@
-import 'package:billiard/src/components/BallTab.dart';
+import 'package:billiard/src/components/HomeComponent.dart';
+import 'package:billiard/src/components/SettingsComponent.dart';
 import 'package:billiard/src/providers/TabProvider.dart';
 import 'package:billiard/src/ui/AddPlayersPage.dart';
 import 'package:flutter/material.dart';
@@ -24,66 +25,43 @@ class _MyHomePageState extends State<MyHomePage> {
       return Scaffold(
         backgroundColor: const Color(0xFF1A1C19),
         appBar: AppBar(
+          automaticallyImplyLeading: false,
           backgroundColor: Color(0xFF1A1C19),
           title: Text(
-            "New game",
+            _selectedIndex == 0 ? "New game" : "More",
             style: TextStyle(color: Colors.white),
           ),
         ),
-        body: Stack(
-          children: [
-            Container(
-              width: MediaQuery.of(context).size.width,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  Container(
-                    child: Image.asset(
-                      'images/${tabProvider.currentSelectedTabIndex == 0 ? "6-ball" : tabProvider.currentSelectedTabIndex == 1 ? "10-ball" : "15-ball"}.png',
-                      width: MediaQuery.of(context).size.width * 0.6,
-                      height: MediaQuery.of(context).size.height * 0.2,
+        body: _selectedIndex == 0 ? HomeComponent() : SettingsComponent(),
+        floatingActionButton: _selectedIndex == 0
+            ? Container(
+                child: FittedBox(
+                  child: FloatingActionButton.extended(
+                    backgroundColor: Color(0xFF1E241C),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AddPlayersPage(),
+                        ),
+                      );
+                    },
+                    label: Text(
+                      "Add players",
+                      style: TextStyle(
+                        color: Color(
+                          0xFF88DD8a,
+                        ),
+                      ),
                     ),
-                    margin: EdgeInsets.only(
-                      bottom: 100,
+                    icon: Icon(
+                      Icons.person_2,
+                      color: Color(0xFF88DD8A),
                     ),
-                  ),
-                ],
-              ),
-            ),
-            Positioned(
-              bottom: MediaQuery.of(context).size.height * 0.1,
-              child: Center(child: BallTab()),
-            )
-          ],
-        ),
-        floatingActionButton: Container(
-          child: FittedBox(
-            child: FloatingActionButton.extended(
-              backgroundColor: Color(0xFF1E241C),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => AddPlayersPage(),
-                  ),
-                );
-              },
-              label: Text(
-                "Add players",
-                style: TextStyle(
-                  color: Color(
-                    0xFF88DD8a,
                   ),
                 ),
-              ),
-              icon: Icon(
-                Icons.person_2,
-                color: Color(0xFF88DD8A),
-              ),
-            ),
-          ),
-        ),
+              )
+            : SizedBox(),
         bottomNavigationBar: SizedBox(
           height: 80,
           child: BottomNavigationBar(

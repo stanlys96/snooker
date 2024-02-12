@@ -1,7 +1,9 @@
 import 'package:billiard/src/components/BallTab.dart';
 import 'package:billiard/src/components/DialogBuilder.dart';
+import 'package:billiard/src/models/BreaksData.dart';
 import 'package:billiard/src/providers/TabProvider.dart';
 import 'package:billiard/src/ui/AddPlayersPage.dart';
+import 'package:billiard/src/ui/BreaksPage.dart';
 import 'package:billiard/src/ui/HomePage.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -31,7 +33,7 @@ class _GamePageState extends State<GamePage> {
             child: Column(
               children: <Widget>[
                 Container(
-                  height: MediaQuery.of(context).size.height * 0.46,
+                  height: MediaQuery.of(context).size.height * 0.42,
                   width: MediaQuery.of(context).size.width * 0.9,
                   padding: EdgeInsets.only(
                     bottom: 10,
@@ -199,11 +201,13 @@ class _GamePageState extends State<GamePage> {
                           i < tabProvider.billiardBalls.length;
                           i++) ...[
                         InkWell(
-                          onTap: () {},
+                          onTap: () {
+                            if (i == 6) return;
+                            tabProvider.addCurrentBilliardData(
+                                tabProvider.billiardBalls[i]);
+                          },
                           child: Opacity(
-                            opacity: tabProvider.currentPointBallIndex == i
-                                ? 1
-                                : 0.3,
+                            opacity: i == 6 ? 0.3 : 1,
                             child: Stack(
                               alignment: Alignment.center,
                               children: [
@@ -241,7 +245,7 @@ class _GamePageState extends State<GamePage> {
                           color: Color(
                             0xFFC3C5BE,
                           ),
-                          size: 30.0,
+                          size: 25.0,
                         ),
                       ),
                       SizedBox(
@@ -274,18 +278,28 @@ class _GamePageState extends State<GamePage> {
                           ),
                         ),
                         onPressed: () async {
-                          bool? theVal = await dialogBuilder(context);
-                          if (theVal ?? false) {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => MyHomePage(),
+                          if (tabProvider.currentBilliardBalls.isNotEmpty) {
+                            tabProvider.breaksList.add(
+                              BreaksData(
+                                id: tabProvider.currentBreaksId,
+                                name: tabProvider.playersList[
+                                    tabProvider.currentPlayerTurnIndex],
+                                points: 49,
+                                balls: [...tabProvider.currentBilliardBalls],
                               ),
                             );
+                            tabProvider.currentBreaksId++;
+                            tabProvider.currentBilliardBalls.clear();
+                          }
+                          if (tabProvider.currentPlayerTurnIndex ==
+                              tabProvider.playersList.length - 1) {
+                            tabProvider.setCurrentPlayerTurnIndex(0);
+                          } else {
+                            tabProvider.incrementPlayerTurnIndex();
                           }
                         },
                         child: Text(
-                          "FINISH GAME",
+                          "END OF BREAK",
                           style: TextStyle(
                             color: Color(
                               0xFF85D47E,
@@ -322,17 +336,32 @@ class _GamePageState extends State<GamePage> {
                                         i++) ...[
                                       ListTile(
                                         onTap: () async {
-                                          Navigator.pop(modalContext);
-                                          bool? theVal =
-                                              await dialogBuilder(context);
-                                          if (theVal ?? false) {
+                                          if (tabProvider
+                                                  .bottomSheetData[i].title ==
+                                              "Breaks") {
+                                            Navigator.pop(modalContext);
                                             Navigator.push(
                                               context,
                                               MaterialPageRoute(
                                                 builder: (context) =>
-                                                    MyHomePage(),
+                                                    BreaksPage(),
                                               ),
                                             );
+                                          } else if (tabProvider
+                                                  .bottomSheetData[i].title ==
+                                              "Finish game") {
+                                            Navigator.pop(modalContext);
+                                            bool? theVal =
+                                                await dialogBuilder(context);
+                                            if (theVal ?? false) {
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      MyHomePage(),
+                                                ),
+                                              );
+                                            }
                                           }
                                         },
                                         leading: Icon(
@@ -343,9 +372,7 @@ class _GamePageState extends State<GamePage> {
                                           ),
                                         ),
                                         title: Text(
-                                          tabProvider
-                                                  .bottomSheetData[i].title ??
-                                              "asdasd",
+                                          tabProvider.bottomSheetData[i].title,
                                           style: TextStyle(
                                             fontSize: 18.0,
                                             color: Color(
@@ -362,11 +389,11 @@ class _GamePageState extends State<GamePage> {
                           );
                         },
                         child: Icon(
-                          Icons.chalet,
+                          Icons.menu,
                           color: Color(
                             0xFFC3C5BE,
                           ),
-                          size: 30.0,
+                          size: 25.0,
                         ),
                       ),
                     ],

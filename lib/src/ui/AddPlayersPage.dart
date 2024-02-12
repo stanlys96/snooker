@@ -1,4 +1,3 @@
-import 'package:billiard/src/components/BallTab.dart';
 import 'package:billiard/src/providers/TabProvider.dart';
 import 'package:billiard/src/ui/GamePage.dart';
 import 'package:flutter/material.dart';
@@ -56,7 +55,7 @@ class _AddPlayersPageState extends State<AddPlayersPage> {
                 margin: EdgeInsets.only(
                   bottom: 20,
                 ),
-                height: MediaQuery.of(context).size.height * 0.65 -
+                height: MediaQuery.of(context).size.height * 0.62 -
                     MediaQuery.of(context).viewInsets.bottom,
                 child: ListView.separated(
                   controller: listViewController,
